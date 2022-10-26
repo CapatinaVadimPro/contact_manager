@@ -1,0 +1,54 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: sf6_mysql
+    volumes:
+      - .docker/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - 3306:3306
+    networks:
+      - symfony
+
+  php:
+    build: 
+      context: php
+      args:
+        TIMEZONE: ${TIMEZONE}
+    container_name: sf6_php
+    volumes:
+      - app:/home/wwwroot/sf6
+    depends_on:
+      - mysql
+    networks:
+      - symfony
+
+  apache:
+    build: 
+      context: apache
+      args:
+        TIMEZONE: ${TIMEZONE}
+    container_name: sf6_apache
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - .docker/config/vhosts/sf6.conf:/etc/apache2/sites-enabled/sf6.conf
+      - app:/home/wwwroot/sf6
+    links:
+      - mysql
+    depends_on:
+      - php
+    networks:
+      - symfony
+
+volumes:
+  data:
+
+networks:
+  symfony:
