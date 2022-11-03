@@ -17,33 +17,14 @@ services:
 
   php:
     build: 
-      context: php
-      args:
-        TIMEZONE: ${TIMEZONE}
+      context: .docker/php
     container_name: sf6_php
-    volumes:
-      - app:/home/wwwroot/sf6
-    depends_on:
-      - mysql
-    networks:
-      - symfony
-
-  apache:
-    build: 
-      context: apache
-      args:
-        TIMEZONE: ${TIMEZONE}
-    container_name: sf6_apache
     ports:
-      - 80:80
-      - 443:443
+      - 9000:8000
     volumes:
-      - .docker/config/vhosts/sf6.conf:/etc/apache2/sites-enabled/sf6.conf
-      - app:/home/wwwroot/sf6
-    links:
-      - mysql
+      - ./app:/var/www/html
     depends_on:
-      - php
+      - mysql
     networks:
       - symfony
 
