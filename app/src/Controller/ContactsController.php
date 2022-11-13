@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Contact;
 use App\Repository\ContactRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,7 +35,7 @@ class ContactsController extends AbstractController
     }
 
     #[Route('/new', name: 'app_contacts_add', methods: ['POST'])]
-    public function new(Request $request, ContactRepository $contactRepository): JsonResponse
+    public function new(Request $request, ContactRepository $contactRepository, ValidatorInterface $validator): JsonResponse
     {
         $requestBody = [];
         if ($request->getContentType() === 'json') {
@@ -48,6 +49,13 @@ class ContactsController extends AbstractController
             $newContact->setAddress($requestBody["address"]);
             $newContact->setAge($requestBody["age"]);
 
+            $errors = $validator->validate($newContact);
+            if (count($errors) > 0) {
+
+                $errorsString = (string) $errors;
+
+                return $this->json(['message' => $errorsString], 403);
+            }
             $contactRepository->save($newContact, true);
 
             return $this->json(['message' => 'contact added'], 200);

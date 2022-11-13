@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints\Json;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 class Contact
@@ -12,16 +12,21 @@ class Contact
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstname = null;
+    #[Assert\NotBlank]
+    private string $firstname;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+    )]
+    private string $email;
 
     #[ORM\Column(length: 255)]
     private ?string $address = null;
@@ -30,7 +35,8 @@ class Contact
     private ?string $phone = null;
 
     #[ORM\Column]
-    private ?int $age = null;
+    #[Assert\NotBlank]
+    private int $age;
 
     public function getId(): ?int
     {
